@@ -14,7 +14,18 @@ void putch(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, char ch, uint32_t
     }
 }
 
+void print(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, const char *str)
+{
+    uint32_t x = 0;
+    while (*str)
+    {
+        putch(fb, font, color, *str, x, 0);
+        x += 8;
+        ++str;
+    }
+}
+
 void kstart(framebuffer_t *fb, psf1fnt_t *font)
 {
-    putch(fb, font, 0xffffffff, 'r', 10, 10);
+    print(fb, font, 0xffffffff, "Hello, world!");
 }
