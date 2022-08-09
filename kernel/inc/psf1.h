@@ -10,7 +10,7 @@ typedef struct psf1hdr
 
 typedef struct psf1fnt
 {
-    PSF1Header *psf1hdr;
+    psf1hdr_t *psf1hdr;
     void *glyphs;
 } psf1fnt_t;
 
