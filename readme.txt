@@ -1,0 +1,3 @@
+mtnos
+
+operating system idk

@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "efilib.h": "c"
+    },
+    "editor.formatOnSave": true
+}

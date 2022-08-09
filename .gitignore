@@ -1,0 +1,6 @@
+mtnos.cppcheck
+mtnos-cppcheck-build-dir
+kernel/bin/*.img
+kernel/bin/*.elf
+kernel/lib/*.o
+gnu-efi/x86_64/
