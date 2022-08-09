@@ -196,8 +196,8 @@ EFI_STATUS efi_main(EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
 		return EFI_LOAD_ERROR;
 	Print(L"Loaded font, chsize: %d\r\n", font->psf1hdr->chsize);
 
-	void (*kstart)(Framebuffer *) = ((__attribute__((sysv_abi)) void (*)(Framebuffer *))hdr.e_entry);
-	kstart(&fb);
+	void (*kstart)(Framebuffer *, PSF1Font *) = ((__attribute__((sysv_abi)) void (*)(Framebuffer *, PSF1Font *))hdr.e_entry);
+	kstart(&fb, font);
 
 	return EFI_SUCCESS;
 }
