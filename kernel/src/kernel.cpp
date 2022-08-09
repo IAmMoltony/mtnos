@@ -1,11 +1,6 @@
 #include <gop.h>
 #include <psf1.h>
 
-typedef struct point
-{
-    uint32_t x, y;
-} point_t;
-
 void putch(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, char ch, uint32_t xp, uint32_t yp)
 {
     uint32_t *pixp = (uint32_t *)fb->base_addr;
