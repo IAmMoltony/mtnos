@@ -9,7 +9,7 @@ typedef struct point
 void putch(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, char ch, uint32_t xp, uint32_t yp)
 {
     uint32_t *pixp = (uint32_t *)fb->base_addr;
-    char *fp = font->glyphs + (ch * font->psf1hdr->chsize);
+    char *fp = (char *)font->glyphs + (ch * font->psf1hdr->chsize);
     for (uint64_t y = yp; y < yp + 16; ++y)
     {
         for (uint64_t x = xp; x < xp + 8; ++x)
@@ -35,7 +35,7 @@ void print(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, const char *str)
     }
 }
 
-void kstart(framebuffer_t *fb, psf1fnt_t *font)
+extern "C" void kstart(framebuffer_t *fb, psf1fnt_t *font)
 {
     cur_pos.x = 0;
     cur_pos.y = 0;

@@ -15,15 +15,22 @@ BOOTEFI := $(GNUEFI)/x86_64/bootloader/main.efi
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-SRC = $(call rwildcard,$(SRCDIR),*.c)          
-OBJS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
+CSRC = $(call rwildcard,$(SRCDIR),*.c)
+CPPSRC = $(call rwildcard,$(SRCDIR),*.cpp)
+COBJS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(CSRC))
+CPPOBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CPPSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
 
-$(BUILDDIR)/kernel.elf: $(OBJS)
+$(BUILDDIR)/kernel.elf: $(COBJS) $(CPPOBJS)
 	@echo linking $(notdir $@)
 	@$(LD) $(LDFLAGS) -o $@ $<
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@echo $(notdir $^)
+	@mkdir -p $(@D)
+	@$(CC) $(CFLAGS) $^ -o $@
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo $(notdir $^)
 	@mkdir -p $(@D)
 	@$(CC) $(CFLAGS) $^ -o $@
