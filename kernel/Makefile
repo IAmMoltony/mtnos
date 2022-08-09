@@ -23,7 +23,7 @@ DIRS = $(wildcard $(SRCDIR)/*)
 
 $(BUILDDIR)/kernel.elf: $(COBJS) $(CPPOBJS)
 	@echo linking $(notdir $@)
-	@$(LD) $(LDFLAGS) -o $@ $<
+	@$(LD) $(LDFLAGS) -o $@ $^
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@echo $(notdir $^)
