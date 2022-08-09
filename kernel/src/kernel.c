@@ -1,6 +1,11 @@
 #include <gop.h>
 #include <psf1.h>
 
+typedef struct point
+{
+    int32_t x, y;
+} point_t;
+
 void putch(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, char ch, uint32_t xp, uint32_t yp)
 {
     uint32_t *pixp = (uint32_t *)fb->base_addr;
@@ -14,18 +19,20 @@ void putch(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, char ch, uint32_t
     }
 }
 
+point_t cur_pos;
 void print(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, const char *str)
 {
-    uint32_t x = 0;
     while (*str)
     {
-        putch(fb, font, color, *str, x, 0);
-        x += 8;
+        putch(fb, font, color, *str, cur_pos.x, cur_pos.y);
+        cur_pos.x += 8;
         ++str;
     }
 }
 
 void kstart(framebuffer_t *fb, psf1fnt_t *font)
 {
+    cur_pos.x = 0;
+    cur_pos.y = 0;
     print(fb, font, 0xffffffff, "Hello, world!");
 }
