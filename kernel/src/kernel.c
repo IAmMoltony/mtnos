@@ -3,7 +3,7 @@
 
 typedef struct point
 {
-    int32_t x, y;
+    uint32_t x, y;
 } point_t;
 
 void putch(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, char ch, uint32_t xp, uint32_t yp)
@@ -26,6 +26,11 @@ void print(framebuffer_t *fb, psf1fnt_t *font, uint32_t color, const char *str)
     {
         putch(fb, font, color, *str, cur_pos.x, cur_pos.y);
         cur_pos.x += 8;
+        if (cur_pos.x + 8 > fb->width)
+        {
+            cur_pos.x = 0;
+            cur_pos.y += 16;
+        }
         ++str;
     }
 }
@@ -34,5 +39,6 @@ void kstart(framebuffer_t *fb, psf1fnt_t *font)
 {
     cur_pos.x = 0;
     cur_pos.y = 0;
-    print(fb, font, 0xffffffff, "Hello, world!");
+    for (int i = 0; i < 50; ++i)
+        print(fb, font, 0xffffffff, "Hello, world!");
 }
