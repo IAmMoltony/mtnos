@@ -24,12 +24,20 @@ void BasicRenderer::print(uint32_t color, const char *str)
 {
     while (*str)
     {
-        putch(color, *str, cur_pos.x, cur_pos.y);
-        cur_pos.x += 8;
-        if (cur_pos.x + 8 > fb->width)
+        if (*str == '\n')
         {
             cur_pos.x = 0;
             cur_pos.y += 16;
+        }
+        else
+        {
+            putch(color, *str, cur_pos.x, cur_pos.y);
+            cur_pos.x += 8;
+            if (cur_pos.x + 8 > fb->width)
+            {
+                cur_pos.x = 0;
+                cur_pos.y += 16;
+            }
         }
         ++str;
     }
