@@ -1,4 +1,5 @@
 #include <kutil.hpp>
+#include <gdt/gdt.h>
 
 static kernel_info_t ki;
 static PageTableManager ptm = NULL;
@@ -37,6 +38,10 @@ void prepare_mem(boot_info_t *bi)
 
 kernel_info_t kernel_init(boot_info_t *bi)
 {
+    gdt_desc_t gdtdesc;
+    gdtdesc.size = sizeof(gdt_t) - 1;
+    gdtdesc.off = (uint64_t)&gdt_default;
+    load_gdt(&gdtdesc);
     prepare_mem(bi);
     return ki;
 }
