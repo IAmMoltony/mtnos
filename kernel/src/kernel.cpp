@@ -16,12 +16,13 @@ typedef struct boot_info
 extern "C" void kstart(boot_info_t *bi)
 {
     BasicRenderer renderer(bi->fb, bi->font);
-    
+    renderer.set_default_color(0xaaaaaaaa);
+
     uint64_t mmap_entries = bi->mmapSize / bi->mmapDescSize;
     uint64_t mem_size = get_memsize(bi->mmap, mmap_entries, bi->mmapDescSize);
     renderer.print("Memory size: ");
-    renderer.print_number(mem_size / 1024);
-    renderer.print(" KB\n\n");
+    renderer.print_number(0x0000ff00, mem_size / 1024);
+    renderer.print(0x0000ff00, " KB\n\n");
 
     for (uint64_t i = 0; i < mmap_entries; ++i)
     {

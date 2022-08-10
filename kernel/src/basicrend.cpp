@@ -18,6 +18,12 @@ BasicRenderer::BasicRenderer(framebuffer_t *fb, psf1fnt_t *font)
     this->fb = fb;
     this->font = font;
     cur_pos = {0, 0};
+    default_color = 0xffffffff;
+}
+
+void BasicRenderer::set_default_color(uint32_t color)
+{
+    default_color = color;
 }
 
 void BasicRenderer::print(uint32_t color, const char *str)
@@ -45,7 +51,7 @@ void BasicRenderer::print(uint32_t color, const char *str)
 
 void BasicRenderer::print(const char *str)
 {
-    print(0xffffffff, str);
+    print(default_color, str);
 }
 
 void longtostr(long num, char *buf, int base)
@@ -94,7 +100,7 @@ void BasicRenderer::print_number(uint32_t color, long num)
 
 void BasicRenderer::print_number(long num)
 {
-    print_number(0xffffffff, num);
+    print_number(default_color, num);
 }
 
 void BasicRenderer::print_hex_number(uint32_t color, long num)
@@ -105,5 +111,5 @@ void BasicRenderer::print_hex_number(uint32_t color, long num)
 
 void BasicRenderer::print_hex_number(long num)
 {
-    print_hex_number(0xffffffff, num);
+    print_hex_number(default_color, num);
 }
