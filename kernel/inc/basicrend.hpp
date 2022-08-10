@@ -22,6 +22,9 @@ public:
 
     void print_number(uint32_t color, long num);
     void print_number(long num);
+    
+    void print_hex_number(uint32_t color, long num);
+    void print_hex_number(long num);
 };
 
 #endif
