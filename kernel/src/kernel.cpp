@@ -3,6 +3,7 @@
 #include <efimem.h>
 #include <mem.h>
 #include <basicrend.hpp>
+#include <bitmap.hpp>
 
 typedef struct boot_info
 {
@@ -17,6 +18,20 @@ extern "C" void kstart(boot_info_t *bi)
 {
     BasicRenderer renderer(bi->fb, bi->font);
     renderer.set_default_color(0xaaaaaaaa);
+
+    uint8_t test_buf[10];
+    Bitmap test;
+    test.buf = test_buf;
+    test.set(0, true);
+    test.set(5, true);
+    test.set(9, true);
+    for (int i = 0; i < 10; ++i)
+    {
+        renderer.print_number(i);
+        renderer.print(": ");
+        renderer.print(test[i] ? "true" : "false");
+        renderer.print("\n");
+    }
 
     uint64_t mmap_entries = bi->mmapSize / bi->mmapDescSize;
     uint64_t mem_size = get_memsize(bi->mmap, mmap_entries, bi->mmapDescSize);
