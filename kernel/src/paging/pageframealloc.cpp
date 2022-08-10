@@ -1,9 +1,11 @@
-#include <pageframealloc.hpp>
+#include <paging/pageframealloc.hpp>
 
 static uint64_t reserved_mem;
 static uint64_t free_mem;
 static uint64_t used_mem;
 static bool init = false;
+
+PageFrameAlloc g_pfalloc;
 
 void PageFrameAlloc::free_page(void *addr)
 {

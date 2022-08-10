@@ -35,4 +35,6 @@ uint64_t get_free_mem(void);
 uint64_t get_used_mem(void);
 uint64_t get_reserved_mem(void);
 
+extern PageFrameAlloc g_pfalloc;
+
 #endif
