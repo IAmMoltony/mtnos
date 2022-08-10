@@ -223,6 +223,7 @@ EFI_STATUS efi_main(EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
 	bi.mmapDescSize = descSize;
 
 	void (*kstart)(BootInfo *) = ((__attribute__((sysv_abi)) void (*)(BootInfo *))hdr.e_entry);
+	uefi_call_wrapper(ST->ConOut->ClearScreen, 1, ST->ConOut);
 	sysTable->BootServices->ExitBootServices(imgHandle, mapKey);
 	kstart(&bi);
 
