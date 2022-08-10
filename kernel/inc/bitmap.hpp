@@ -10,7 +10,7 @@ public:
     size_t size;
     uint8_t *buf;
     bool operator[](uint64_t i);
-    void set(uint64_t i, bool val);
+    bool set(uint64_t i, bool val);
 };
 
 #endif

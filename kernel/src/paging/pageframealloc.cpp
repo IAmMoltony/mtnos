@@ -6,15 +6,20 @@ static uint64_t used_mem;
 static bool init = false;
 
 PageFrameAlloc g_pfalloc;
+uint64_t pagebmpi = 0;
 
 void PageFrameAlloc::free_page(void *addr)
 {
     uint64_t i = (uint64_t)addr / 4096;
     if (pagebmp[i] == false)
         return; // already free
-    pagebmp.set(i, false);
-    free_mem += 4096;
-    used_mem -= 4096;
+    if (pagebmp.set(i, false))
+    {
+        free_mem += 4096;
+        used_mem -= 4096;
+        if (pagebmpi > i)
+            pagebmpi = i;
+    }
 }
 
 void PageFrameAlloc::lock_page(void *addr)
@@ -22,9 +27,11 @@ void PageFrameAlloc::lock_page(void *addr)
     uint64_t i = (uint64_t)addr / 4096;
     if (pagebmp[i] == true)
         return; // already locked
-    pagebmp.set(i, true);
-    free_mem -= 4096;
-    used_mem += 4096;
+    if (pagebmp.set(i, true))
+    {
+        free_mem -= 4096;
+        used_mem += 4096;
+    }
 }
 
 void PageFrameAlloc::unreserve_page(void *addr)
@@ -32,9 +39,13 @@ void PageFrameAlloc::unreserve_page(void *addr)
     uint64_t i = (uint64_t)addr / 4096;
     if (pagebmp[i] == false)
         return; // already unreserved
-    pagebmp.set(i, false);
-    free_mem += 4096;
-    reserved_mem -= 4096;
+    if (pagebmp.set(i, false))
+    {
+        free_mem += 4096;
+        reserved_mem -= 4096;
+        if (pagebmpi > i)
+            pagebmpi = i;
+    }
 }
 
 void PageFrameAlloc::reserve_page(void *addr)
@@ -42,9 +53,11 @@ void PageFrameAlloc::reserve_page(void *addr)
     uint64_t i = (uint64_t)addr / 4096;
     if (pagebmp[i] == true)
         return; // already reserved
-    pagebmp.set(i, true);
-    free_mem -= 4096;
-    reserved_mem += 4096;
+    if (pagebmp.set(i, true))
+    {
+        free_mem -= 4096;
+        reserved_mem += 4096;
+    }
 }
 
 void PageFrameAlloc::free_pages(void *addr, uint64_t count)
@@ -73,13 +86,13 @@ void PageFrameAlloc::reserve_pages(void *addr, uint64_t count)
 
 void *PageFrameAlloc::req_page(void)
 {
-    for (uint64_t i = 0; i < pagebmp.size * 8; ++i)
+    for (; pagebmpi < pagebmp.size * 8; ++pagebmpi)
     {
-        if (pagebmp[i] == true) // not free
+        if (pagebmp[pagebmpi] == true) // not free
             continue;
         
-        lock_page((void *)(i * 4096));
-        return (void *)(i * 4096);
+        lock_page((void *)(pagebmpi * 4096));
+        return (void *)(pagebmpi * 4096);
     }
 
     return 0; // cant find a page
