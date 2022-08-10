@@ -39,3 +39,40 @@ void BasicRenderer::print(const char *str)
 {
     print(0xffffffff, str);
 }
+
+static char ntos_out[23]; // i think 23 is enough
+void BasicRenderer::print_number(uint32_t color, long num)
+{
+    if (num < 0)
+    {
+        print(color, "-");
+        num *= -1;
+    }
+
+    uint8_t size;
+    uint64_t size_test = num;
+    while (size_test / 10 > 0)
+    {
+        size_test /= 10;
+        ++size;
+    }
+
+    uint8_t i = 0;
+    while (num / 10 > 0)
+    {
+        uint8_t rem = num % 10;
+        num /= 10;
+        ntos_out[size - i] = rem + '0';
+        ++i;
+    }
+
+    uint8_t rem = num % 10;
+    ntos_out[size - i] = rem + '0';
+    ntos_out[size + 1] = 0;
+    print(color, ntos_out);
+}
+
+void BasicRenderer::print_number(long num)
+{
+    print_number(0xffffffff, num);
+}
