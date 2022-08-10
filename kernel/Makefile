@@ -36,7 +36,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@$(CC) $(CFLAGS) $^ -o $@
 
 $(BUILDDIR)/$(OSNAME).img: $(BUILDDIR)/kernel.elf $(BOOTEFI) startup.nsh
-	@echo building $@...
+	@echo building $(notdir $@)...
 	@dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME).img bs=512 count=93750
 	@mformat -i $(BUILDDIR)/$(OSNAME).img -f 1440 ::
 	@mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI

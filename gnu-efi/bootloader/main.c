@@ -29,6 +29,15 @@ typedef struct psf1fnt
 	void *glyphs;
 } PSF1Font;
 
+typedef struct boot_info
+{
+	Framebuffer *fb;
+	PSF1Font *font;
+	EFI_MEMORY_DESCRIPTOR *mmap;
+	UINTN mmapSize;
+	UINTN mmapDescSize;
+} BootInfo;
+
 EFI_FILE *load_file(EFI_FILE *dir, CHAR16 *path, EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
 {
 	EFI_FILE *ldFile;
@@ -196,8 +205,26 @@ EFI_STATUS efi_main(EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
 		return EFI_LOAD_ERROR;
 	Print(L"Loaded font, chsize: %d\r\n", font->psf1hdr->chsize);
 
-	void (*kstart)(Framebuffer *, PSF1Font *) = ((__attribute__((sysv_abi)) void (*)(Framebuffer *, PSF1Font *))hdr.e_entry);
-	kstart(&fb, font);
+	EFI_MEMORY_DESCRIPTOR *mmap = NULL;
+	UINTN mapSize, mapKey;
+	UINTN descSize;
+	UINT32 descVer;
+	{
+		sysTable->BootServices->GetMemoryMap(&mapSize, mmap, &mapKey, &descSize, &descVer);
+		sysTable->BootServices->AllocatePool(EfiLoaderData, mapSize, (void **)&mmap);
+		sysTable->BootServices->GetMemoryMap(&mapSize, mmap, &mapKey, &descSize, &descVer);
+	}
+
+	BootInfo bi;
+	bi.fb = &fb;
+	bi.font = font;
+	bi.mmap = mmap;
+	bi.mmapSize = mapSize;
+	bi.mmapDescSize = descSize;
+
+	void (*kstart)(BootInfo *) = ((__attribute__((sysv_abi)) void (*)(BootInfo *))hdr.e_entry);
+	sysTable->BootServices->ExitBootServices(imgHandle, mapKey);
+	kstart(&bi);
 
 	return EFI_SUCCESS;
 }
