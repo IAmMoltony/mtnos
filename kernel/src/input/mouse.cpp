@@ -3,6 +3,26 @@
 #include <stdbool.h>
 #include <basicrend.hpp>
 
+uint8_t mouse_pointer[] =
+{
+    0b11000000, 0b00000000,
+    0b10100000, 0b00000000,
+    0b10010000, 0b00000000,
+    0b10001000, 0b00000000,
+    0b10000100, 0b00000000,
+    0b10000010, 0b00000000,
+    0b10000001, 0b00000000,
+    0b10000011, 0b10000000,
+    0b10010010, 0b00000000,
+    0b10101001, 0b00000000,
+    0b11001001, 0b00000000,
+    0b00000100, 0b10000000,
+    0b00000100, 0b10000000,
+    0b00000011, 0b00000000,
+    0b00000000, 0b00000000,
+    0b00000000, 0b00000000,
+};
+
 void mouse_wait(void)
 {
     uint64_t timeout = 100000;
@@ -41,6 +61,7 @@ uint8_t mouse_cycle = 0;
 uint8_t mouse_packet[4];
 bool mouse_packet_ready = false;
 point_t mouse_position;
+point_t mouse_position_old;
 void handle_mouse(uint8_t data)
 {
     switch (mouse_cycle)
@@ -72,7 +93,6 @@ void process_mouse_packet(void)
     if (!mouse_packet_ready)
         return;
     
-    mouse_packet_ready = false;
     bool x_neg, y_neg, x_overflow, y_overflow;
     x_neg = (mouse_packet[0] & PS2_XSIGN);
     y_neg = (mouse_packet[0] & PS2_YSIGN);
@@ -116,7 +136,18 @@ void process_mouse_packet(void)
     if (mouse_position.y > g_renderer->get_height() - 17)
         mouse_position.y = g_renderer->get_height() - 1;
 
-    g_renderer->putch(0xaaaaaaaa, '#', mouse_position.x, mouse_position.y);
+    g_renderer->clear_mouse_cursor(mouse_position_old);
+    g_renderer->draw_mouse_cursor(mouse_position, 0xffffffff);
+
+    if (mouse_packet[0] & PS2_LMB)
+        g_renderer->putch(0x00ff00ff, '#', mouse_position.x, mouse_position.y);
+    if (mouse_packet[0] & PS2_MMB)
+        g_renderer->putch(0x00ff0000, '#', mouse_position.x, mouse_position.y);
+    if (mouse_packet[0] & PS2_RMB)
+        g_renderer->putch(0xffffff00, '#', mouse_position.x, mouse_position.y);
+
+    mouse_packet_ready = false;
+    mouse_position_old = mouse_position;
 }
 
 void ps2mouse_init(void)

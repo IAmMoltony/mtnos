@@ -1,4 +1,5 @@
 #include <basicrend.hpp>
+#include <input/mouse.hpp>
 
 BasicRenderer *g_renderer;
 
@@ -272,6 +273,68 @@ void BasicRenderer::printf(const char *format, ...)
     va_end(args);
 }
 
+void BasicRenderer::putpx(uint32_t x, uint32_t y, uint32_t color)
+{
+    *(uint32_t *)((uint64_t)fb->base_addr + (x * 4) + (y * fb->px_per_scanline * 4)) = color;
+}
+
+static bool mouse_drawn = false;
+void BasicRenderer::clear_mouse_cursor(point_t pos)
+{
+    if (!mouse_drawn)
+        return;
+
+    int xm = 16;
+    int ym = 16;
+    int diffx = fb->width - pos.x;
+    int diffy = fb->height - pos.y;
+
+    if (diffx < 16)
+        xm = diffx;
+    if (diffy < 16)
+        ym = diffy;
+    
+    for (int y = 0; y < ym; ++y)
+        for (int x = 0; x < xm; ++x)
+        {
+            int bit = y * 16 + x;
+            int byte = bit / 8;
+            if ((mouse_pointer[byte] & (0b10000000 >> (x % 8))))
+            {
+                if (get_px(pos.x + x, pos.y + y) == mouse_cursor_buf_after[x + y * 16])
+                    putpx(pos.x + x, pos.y + y, mouse_cursor_buf[x + y * 16]);
+            }
+        }
+}
+
+void BasicRenderer::draw_mouse_cursor(point_t pos, uint32_t color)
+{
+    int xm = 16;
+    int ym = 16;
+    int diffx = fb->width - pos.x;
+    int diffy = fb->height - pos.y;
+
+    if (diffx < 16)
+        xm = diffx;
+    if (diffy < 16)
+        ym = diffy;
+    
+    for (int y = 0; y < ym; ++y)
+        for (int x = 0; x < xm; ++x)
+        {
+            int bit = y * 16 + x;
+            int byte = bit / 8;
+            if ((mouse_pointer[byte] & (0b10000000 >> (x % 8))))
+            {
+                mouse_cursor_buf[x + y * 16] = get_px(pos.x + x, pos.y + y);
+                putpx(pos.x + x, pos.y + y, color);
+                mouse_cursor_buf_after[x + y * 16] = get_px(pos.x + x, pos.y + y);
+            }
+        }
+    
+    mouse_drawn = true;
+}
+
 uint32_t BasicRenderer::get_width(void)
 {
     return fb->width;
@@ -280,4 +343,9 @@ uint32_t BasicRenderer::get_width(void)
 uint32_t BasicRenderer::get_height(void)
 {
     return fb->height;
+}
+
+uint32_t BasicRenderer::get_px(uint32_t x, uint32_t y)
+{
+    return *(uint32_t *)((uint64_t)fb->base_addr + (x * 4) + (y * fb->px_per_scanline * 4));
 }
