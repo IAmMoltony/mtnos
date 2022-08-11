@@ -125,7 +125,7 @@ void PageFrameAlloc::read_efi_mmap(EFI_MEMORY_DESCRIPTOR *mmap, size_t mmap_size
     uint64_t bmpsize = mem_size / 4096 / 8 + 1;
 
     init_bmp(bmpsize, largest_free);
-    lock_pages(&pagebmp, pagebmp.size / 4096 + 1);
+    lock_pages(pagebmp.buf, pagebmp.size / 4096 + 1);
 
     for (uint64_t i = 0; i < mmap_entries; ++i)
     {
