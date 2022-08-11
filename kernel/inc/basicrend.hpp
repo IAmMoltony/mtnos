@@ -30,4 +30,6 @@ public:
     void print_hex_number(long num);
 };
 
+extern BasicRenderer *g_renderer;
+
 #endif

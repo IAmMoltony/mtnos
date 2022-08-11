@@ -1,5 +1,8 @@
 #include <kutil.hpp>
 #include <gdt/gdt.h>
+#include <interrupts/idt.hpp>
+#include <interrupts/interrupts.hpp>
+#include <basicrend.hpp>
 
 static kernel_info_t ki;
 static PageTableManager ptm = NULL;
@@ -36,12 +39,31 @@ void prepare_mem(boot_info_t *bi)
     ki.ptm = &ptm;
 }
 
+IDTR idtr;
+void prepare_interrupts(void)
+{
+    idtr.limit = 0x0fff;
+    idtr.off = (uint64_t)g_pfalloc.req_page();
+
+    IDTDescEntry *int_page_fault = (IDTDescEntry *)(idtr.off + 0xe * sizeof(IDTDescEntry));
+    int_page_fault->set_off((uint64_t)page_fault_handler);
+    int_page_fault->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
+    int_page_fault->selector = 0x08;
+
+    asm("lidt %0" : : "m"(idtr));
+}
+
+BasicRenderer rend = BasicRenderer(NULL, NULL);
 kernel_info_t kernel_init(boot_info_t *bi)
 {
+    rend = BasicRenderer(bi->fb, bi->font);
+    g_renderer = &rend;
+
     gdt_desc_t gdtdesc;
     gdtdesc.size = sizeof(gdt_t) - 1;
     gdtdesc.off = (uint64_t)&gdt_default;
     load_gdt(&gdtdesc);
     prepare_mem(bi);
+    prepare_interrupts();
     return ki;
 }

@@ -30,6 +30,11 @@ $(BUILDDIR)/kernel.elf: $(COBJS) $(CPPOBJS) $(ASMOBJS)
 	@echo linking $(notdir $@)
 	@$(LD) $(LDFLAGS) -o $@ $^
 
+$(OBJDIR)/interrupts/interrupts.o: $(SRCDIR)/interrupts/interrupts.cpp
+	@echo $(notdir $^)
+	@mkdir -p $(@D)
+	@$(CC) -mno-red-zone -Iinc -mgeneral-regs-only -ffreestanding -c $^ -o $@
+
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@echo $(notdir $^)
 	@mkdir -p $(@D)

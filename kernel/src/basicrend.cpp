@@ -1,5 +1,7 @@
 #include <basicrend.hpp>
 
+BasicRenderer *g_renderer;
+
 void BasicRenderer::putch(uint32_t color, char ch, uint32_t xp, uint32_t yp)
 {
     uint32_t *pixp = (uint32_t *)fb->base_addr;
