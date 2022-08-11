@@ -2,6 +2,7 @@
 #include <panic.hpp>
 #include <basicrend.hpp>
 #include <io.h>
+#include <input/keyboard.hpp>
 
 __attribute__((interrupt)) void page_fault_handler(struct InterruptFrame *frame)
 {
@@ -29,9 +30,8 @@ __attribute__((interrupt)) void gp_fault_handler(struct InterruptFrame *frame)
 
 __attribute__((interrupt)) void keyboard_int_handler(struct InterruptFrame *frame)
 {
-    g_renderer->print("key pressed");
-
     uint8_t scancode = inb(0x60);
+    handle_kb(scancode);
     pic_endmaster();
 }
 

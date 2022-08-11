@@ -35,6 +35,12 @@ void BasicRenderer::vprintf(uint32_t color, const char *format, va_list args)
                     print(color, s);
                     break;
                 }
+                case 'c':
+                {
+                    int c = va_arg(args, int);
+                    putchar(color, c);
+                    break;
+                }
                 case 'd':
                 {
                     long d = va_arg(args, long);
@@ -74,6 +80,7 @@ BasicRenderer::BasicRenderer(framebuffer_t *fb, psf1fnt_t *font)
     this->font = font;
     cur_pos = {0, 0};
     default_color = 0xffffffff;
+    clear_color = 0;
 }
 
 void BasicRenderer::set_default_color(uint32_t color)
@@ -81,7 +88,12 @@ void BasicRenderer::set_default_color(uint32_t color)
     default_color = color;
 }
 
-void BasicRenderer::clear(uint32_t color)
+void BasicRenderer::set_clear_color(uint32_t color)
+{
+    clear_color = color;
+}
+
+void BasicRenderer::clear(void)
 {
     uint64_t fb_base = (uint64_t)fb->base_addr;
     uint64_t bps = fb->px_per_scanline * 4; // bytes per scanline
@@ -90,13 +102,66 @@ void BasicRenderer::clear(uint32_t color)
     {
         uint64_t pixp_base = fb_base + (bps * i);
         for (uint32_t *pixp = (uint32_t *)pixp_base; pixp < (uint32_t *)(pixp_base + bps); ++pixp)
-            *pixp = color;
+            *pixp = clear_color;
     }
+}
+
+void BasicRenderer::clearch(void)
+{
+    if (cur_pos.y < 16)
+        return;
+
+    if (cur_pos.x == 0)
+    {
+        cur_pos.x = fb->width;
+        cur_pos.y -= 16;
+    }
+    
+    if (cur_pos.x - 8 < 0)
+    {
+        cur_pos.x = fb->width;
+        if (cur_pos.y - 16 > 0)
+            cur_pos.y -= 16;
+    }
+    else
+    {
+        cur_pos.x -= 8;
+    }
+
+    uint32_t *pixp = (uint32_t *)fb->base_addr;
+    uint64_t xp = cur_pos.x;
+    uint64_t yp = cur_pos.y;
+    for (uint64_t y = yp; y < yp + 16; ++y)
+        for (uint64_t x = xp; x < xp + 8; ++x)
+            *(uint32_t *)(pixp + x + (y * fb->px_per_scanline)) = clear_color;
 }
 
 void BasicRenderer::reset_pos(void)
 {
     cur_pos = {0, 0};
+}
+
+void BasicRenderer::putchar(uint32_t color, char ch)
+{
+    if (ch == '\n')
+    {
+        cur_pos.x = 0;
+        cur_pos.y += 16;
+        return;
+    }
+
+    putch(color, ch, cur_pos.x, cur_pos.y);
+    cur_pos.x += 8;
+    if (cur_pos.x + 8 > fb->width)
+    {
+        cur_pos.x = 0;
+        cur_pos.y += 16;
+    }
+}
+
+void BasicRenderer::putchar(char ch)
+{
+    putchar(default_color, ch);
 }
 
 void BasicRenderer::print(uint32_t color, const char *str)

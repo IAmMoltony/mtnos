@@ -13,6 +13,7 @@ private:
     psf1fnt_t *font;
     point_t cur_pos;
     uint32_t default_color;
+    uint32_t clear_color;
 
     void putch(uint32_t color, char ch, uint32_t xp, uint32_t yp);
     void vprintf(uint32_t color, const char *format, va_list args);
@@ -21,8 +22,13 @@ public:
     BasicRenderer(framebuffer_t *fb, psf1fnt_t *font);
 
     void set_default_color(uint32_t color);
-    void clear(uint32_t color);
+    void set_clear_color(uint32_t color);
+    void clear(void);
+    void clearch(void);
     void reset_pos(void);
+
+    void putchar(uint32_t color, char ch);
+    void putchar(char ch);
 
     void print(uint32_t color, const char *str);
     void print(const char *str);
