@@ -15,7 +15,6 @@ private:
     uint32_t default_color;
     uint32_t clear_color;
 
-    void putch(uint32_t color, char ch, uint32_t xp, uint32_t yp);
     void vprintf(uint32_t color, const char *format, va_list args);
 
 public:
@@ -27,6 +26,7 @@ public:
     void clearch(void);
     void reset_pos(void);
 
+    void putch(uint32_t color, char ch, uint32_t xp, uint32_t yp);
     void putchar(uint32_t color, char ch);
     void putchar(char ch);
 
@@ -41,6 +41,9 @@ public:
 
     void printf(uint32_t color, const char *format, ...);
     void printf(const char *format, ...);
+
+    uint32_t get_width(void);
+    uint32_t get_height(void);
 };
 
 extern BasicRenderer *g_renderer;

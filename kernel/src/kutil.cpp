@@ -4,6 +4,7 @@
 #include <interrupts/interrupts.hpp>
 #include <basicrend.hpp>
 #include <io.h>
+#include <input/mouse.hpp>
 
 static kernel_info_t ki;
 static PageTableManager ptm = NULL;
@@ -41,40 +42,39 @@ void prepare_mem(boot_info_t *bi)
 }
 
 IDTR idtr;
+
+void set_idt_gate(void *handler, uint8_t off, uint8_t type_attr, uint8_t selector)
+{
+    IDTDescEntry *interrupt = (IDTDescEntry *)(idtr.off + off * sizeof(IDTDescEntry));
+    interrupt->set_off((uint64_t)handler);
+    interrupt->type_attr = type_attr;
+    interrupt->selector = selector;
+}
+
 void prepare_interrupts(void)
 {
     idtr.limit = 0x0fff;
     idtr.off = (uint64_t)g_pfalloc.req_page();
 
     // page fault
-    IDTDescEntry *int_page_fault = (IDTDescEntry *)(idtr.off + 0xe * sizeof(IDTDescEntry));
-    int_page_fault->set_off((uint64_t)page_fault_handler);
-    int_page_fault->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
-    int_page_fault->selector = 0x08;
+    set_idt_gate((void *)page_fault_handler, 0xe, IDT_TYPE_ATTR_INTERRUPT_GATE, 0x08);
     
     // double fault
-    IDTDescEntry *int_double_fault = (IDTDescEntry *)(idtr.off + 0x8 * sizeof(IDTDescEntry));
-    int_double_fault->set_off((uint64_t)double_fault_handler);
-    int_double_fault->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
-    int_double_fault->selector = 0x08;
+    set_idt_gate((void *)double_fault_handler, 0x8, IDT_TYPE_ATTR_INTERRUPT_GATE, 0x08);
 
     // gp fault
-    IDTDescEntry *int_gp_fault = (IDTDescEntry *)(idtr.off + 0xd * sizeof(IDTDescEntry));
-    int_gp_fault->set_off((uint64_t)gp_fault_handler);
-    int_gp_fault->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
-    int_gp_fault->selector = 0x08;
+    set_idt_gate((void *)gp_fault_handler, 0xd, IDT_TYPE_ATTR_INTERRUPT_GATE, 0x08);
 
     // keyboard
-    IDTDescEntry *int_kb = (IDTDescEntry *)(idtr.off + 0x21 * sizeof(IDTDescEntry));
-    int_kb->set_off((uint64_t)keyboard_int_handler);
-    int_kb->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
-    int_kb->selector = 0x08;
+    set_idt_gate((void *)keyboard_int_handler, 0x21, IDT_TYPE_ATTR_INTERRUPT_GATE, 0x08);
+
+    // mouse
+    set_idt_gate((void *)mouse_int_handler, 0x2c, IDT_TYPE_ATTR_INTERRUPT_GATE, 0x08);
 
     asm("lidt %0" : : "m"(idtr));
     remap_pic();
     outb(PIC1_DATA, 0b11111101);
     outb(PIC2_DATA, 0b11111111);
-    asm("sti");
 }
 
 BasicRenderer rend = BasicRenderer(NULL, NULL);
@@ -87,7 +87,15 @@ kernel_info_t kernel_init(boot_info_t *bi)
     gdtdesc.size = sizeof(gdt_t) - 1;
     gdtdesc.off = (uint64_t)&gdt_default;
     load_gdt(&gdtdesc);
+
     prepare_mem(bi);
     prepare_interrupts();
+    ps2mouse_init();
+
+    outb(PIC1_DATA, 0b11111001);
+    outb(PIC2_DATA, 0b11101111);
+
+    asm("sti");
+
     return ki;
 }

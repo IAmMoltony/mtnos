@@ -271,3 +271,13 @@ void BasicRenderer::printf(const char *format, ...)
 
     va_end(args);
 }
+
+uint32_t BasicRenderer::get_width(void)
+{
+    return fb->width;
+}
+
+uint32_t BasicRenderer::get_height(void)
+{
+    return fb->height;
+}

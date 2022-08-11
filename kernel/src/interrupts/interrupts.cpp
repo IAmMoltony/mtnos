@@ -3,6 +3,7 @@
 #include <basicrend.hpp>
 #include <io.h>
 #include <input/keyboard.hpp>
+#include <input/mouse.hpp>
 
 __attribute__((interrupt)) void page_fault_handler(struct InterruptFrame *frame)
 {
@@ -33,6 +34,13 @@ __attribute__((interrupt)) void keyboard_int_handler(struct InterruptFrame *fram
     uint8_t scancode = inb(0x60);
     handle_kb(scancode);
     pic_endmaster();
+}
+
+__attribute__((interrupt)) void mouse_int_handler(struct InterruptFrame *frame)
+{
+    uint8_t data = inb(0x60);
+    handle_mouse(data);
+    pic_endslave();
 }
 
 void remap_pic(void)

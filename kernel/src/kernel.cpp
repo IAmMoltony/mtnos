@@ -1,4 +1,5 @@
 #include <kutil.hpp>
+#include <input/mouse.hpp>
 
 extern "C" void kstart(boot_info_t *bi)
 {
@@ -8,6 +9,11 @@ extern "C" void kstart(boot_info_t *bi)
     g_renderer->set_clear_color(0);
     g_renderer->clear();
     g_renderer->print("Kernel initialized\n\n");
+
+    while (true)
+    {
+        process_mouse_packet();
+    }
 
     while (true)
         ;
