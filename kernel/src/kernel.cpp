@@ -7,8 +7,8 @@ extern "C" void kstart(boot_info_t *bi)
 
     g_renderer->set_default_color(0xaaaaaaaa);
     g_renderer->print("Kernel initialized\n");
-
-    asm("int $0x0e");
+    
+    g_renderer->printf("Hello, %s!\n%d%%\n0x%x", "pizza", 98, 0x1EE7);
 
     while (true)
         ;

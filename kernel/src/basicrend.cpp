@@ -15,6 +15,59 @@ void BasicRenderer::putch(uint32_t color, char ch, uint32_t xp, uint32_t yp)
     }
 }
 
+void BasicRenderer::vprintf(uint32_t color, const char *format, va_list args)
+{
+    while (*format)
+    {
+        switch (*format)
+        {
+        case '\n':
+            cur_pos.x = 0;
+            cur_pos.y += 16;
+            break;
+        case '%':
+            ++format;
+            switch (*format)
+            {
+                case 's':
+                {
+                    char *s = va_arg(args, char *);
+                    print(color, s);
+                    break;
+                }
+                case 'd':
+                {
+                    long d = va_arg(args, long);
+                    print_number(color, d);
+                    break;
+                }
+                case 'x':
+                {
+                    long x = va_arg(args, long);
+                    print_hex_number(color, x);
+                    break;
+                }
+                case '%':
+                {
+                    print(color, "%");
+                    break;
+                }
+            }
+            break;
+        default:
+            putch(color, *format, cur_pos.x, cur_pos.y);
+            cur_pos.x += 8;
+            if (cur_pos.x + 8 > fb->width)
+            {
+                cur_pos.x = 0;
+                cur_pos.y += 16;
+            }
+            break;
+        }
+        ++format;
+    }
+}
+
 BasicRenderer::BasicRenderer(framebuffer_t *fb, psf1fnt_t *font)
 {
     this->fb = fb;
@@ -114,4 +167,24 @@ void BasicRenderer::print_hex_number(uint32_t color, long num)
 void BasicRenderer::print_hex_number(long num)
 {
     print_hex_number(default_color, num);
+}
+
+void BasicRenderer::printf(uint32_t color, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    vprintf(color, format, args);
+
+    va_end(args);
+}
+
+void BasicRenderer::printf(const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    vprintf(default_color, format, args);
+
+    va_end(args);
 }

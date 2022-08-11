@@ -4,6 +4,7 @@
 #include <gop.h>
 #include <psf1.h>
 #include <point.h>
+#include <stdarg.h>
 
 class BasicRenderer
 {
@@ -14,6 +15,7 @@ private:
     uint32_t default_color;
 
     void putch(uint32_t color, char ch, uint32_t xp, uint32_t yp);
+    void vprintf(uint32_t color, const char *format, va_list args);
 
 public:
     BasicRenderer(framebuffer_t *fb, psf1fnt_t *font);
@@ -28,6 +30,9 @@ public:
     
     void print_hex_number(uint32_t color, long num);
     void print_hex_number(long num);
+
+    void printf(uint32_t color, const char *format, ...);
+    void printf(const char *format, ...);
 };
 
 extern BasicRenderer *g_renderer;
