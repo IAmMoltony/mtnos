@@ -3,6 +3,7 @@
 #include <interrupts/idt.hpp>
 #include <interrupts/interrupts.hpp>
 #include <basicrend.hpp>
+#include <io.h>
 
 static kernel_info_t ki;
 static PageTableManager ptm = NULL;
@@ -63,7 +64,17 @@ void prepare_interrupts(void)
     int_gp_fault->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
     int_gp_fault->selector = 0x08;
 
+    // keyboard
+    IDTDescEntry *int_kb = (IDTDescEntry *)(idtr.off + 0x21 * sizeof(IDTDescEntry));
+    int_kb->set_off((uint64_t)keyboard_int_handler);
+    int_kb->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
+    int_kb->selector = 0x08;
+
     asm("lidt %0" : : "m"(idtr));
+    remap_pic();
+    outb(PIC1_DATA, 0b11111101);
+    outb(PIC2_DATA, 0b11111111);
+    asm("sti");
 }
 
 BasicRenderer rend = BasicRenderer(NULL, NULL);
