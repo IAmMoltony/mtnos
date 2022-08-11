@@ -94,6 +94,11 @@ void BasicRenderer::clear(uint32_t color)
     }
 }
 
+void BasicRenderer::reset_pos(void)
+{
+    cur_pos = {0, 0};
+}
+
 void BasicRenderer::print(uint32_t color, const char *str)
 {
     while (*str)

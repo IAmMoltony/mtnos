@@ -22,6 +22,7 @@ public:
 
     void set_default_color(uint32_t color);
     void clear(uint32_t color);
+    void reset_pos(void);
 
     void print(uint32_t color, const char *str);
     void print(const char *str);

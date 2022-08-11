@@ -7,7 +7,7 @@ CC = gcc
 ASM = nasm
 LD = ld
 
-CFLAGS = -ffreestanding -fshort-wchar -Wall -Wextra -Iinc -c
+CFLAGS = -ffreestanding -fshort-wchar -Iinc -c
 ASMFLAGS = -iinc
 LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
 
