@@ -21,6 +21,7 @@ public:
     BasicRenderer(framebuffer_t *fb, psf1fnt_t *font);
 
     void set_default_color(uint32_t color);
+    void clear(uint32_t color);
 
     void print(uint32_t color, const char *str);
     void print(const char *str);

@@ -81,6 +81,19 @@ void BasicRenderer::set_default_color(uint32_t color)
     default_color = color;
 }
 
+void BasicRenderer::clear(uint32_t color)
+{
+    uint64_t fb_base = (uint64_t)fb->base_addr;
+    uint64_t bps = fb->px_per_scanline * 4; // bytes per scanline
+    uint64_t fb_h = fb->height;
+    for (uint64_t i = 0; i < fb_h; ++i)
+    {
+        uint64_t pixp_base = fb_base + (bps * i);
+        for (uint32_t *pixp = (uint32_t *)pixp_base; pixp < (uint32_t *)(pixp_base + bps); ++pixp)
+            *pixp = color;
+    }
+}
+
 void BasicRenderer::print(uint32_t color, const char *str)
 {
     while (*str)

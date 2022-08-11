@@ -6,6 +6,7 @@ extern "C" void kstart(boot_info_t *bi)
     PageTableManager *ptm = ki.ptm;
 
     g_renderer->set_default_color(0xaaaaaaaa);
+    g_renderer->clear(0x00000000);
     g_renderer->print("Kernel initialized\n");
     
     g_renderer->printf("Hello, %s!\n%d%%\n0x%x", "pizza", 98, 0x1EE7);
