@@ -45,10 +45,23 @@ void prepare_interrupts(void)
     idtr.limit = 0x0fff;
     idtr.off = (uint64_t)g_pfalloc.req_page();
 
+    // page fault
     IDTDescEntry *int_page_fault = (IDTDescEntry *)(idtr.off + 0xe * sizeof(IDTDescEntry));
     int_page_fault->set_off((uint64_t)page_fault_handler);
     int_page_fault->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
     int_page_fault->selector = 0x08;
+    
+    // double fault
+    IDTDescEntry *int_double_fault = (IDTDescEntry *)(idtr.off + 0x8 * sizeof(IDTDescEntry));
+    int_double_fault->set_off((uint64_t)double_fault_handler);
+    int_double_fault->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
+    int_double_fault->selector = 0x08;
+
+    // gp fault
+    IDTDescEntry *int_gp_fault = (IDTDescEntry *)(idtr.off + 0xd * sizeof(IDTDescEntry));
+    int_gp_fault->set_off((uint64_t)gp_fault_handler);
+    int_gp_fault->type_attr = IDT_TYPE_ATTR_INTERRUPT_GATE;
+    int_gp_fault->selector = 0x08;
 
     asm("lidt %0" : : "m"(idtr));
 }

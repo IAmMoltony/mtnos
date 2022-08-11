@@ -8,9 +8,6 @@ extern "C" void kstart(boot_info_t *bi)
     g_renderer->set_default_color(0xaaaaaaaa);
     g_renderer->clear(0);
     g_renderer->print("Kernel initialized\n");
-    
-    int *test = (int *)2000000000;
-    *test = 2;
 
     while (true)
         ;
