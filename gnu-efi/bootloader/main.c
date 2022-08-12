@@ -29,6 +29,16 @@ typedef struct psf1fnt
 	void *glyphs;
 } PSF1Font;
 
+typedef struct boot_info
+{
+	Framebuffer *fb;
+	PSF1Font *font;
+	EFI_MEMORY_DESCRIPTOR *mmap;
+	UINTN mmapSize;
+	UINTN mmapDescSize;
+	void *rsdp;
+} BootInfo;
+
 EFI_FILE *load_file(EFI_FILE *dir, CHAR16 *path, EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
 {
 	EFI_FILE *ldFile;
@@ -123,6 +133,16 @@ bool load_font(EFI_FILE *dir, CHAR16 *path, EFI_HANDLE imgHandle, EFI_SYSTEM_TAB
 	return true;
 }
 
+UINTN strcmp(CHAR8 *a, CHAR8 *b, UINTN n)
+{
+	for (UINTN i = 0; i < n; ++i)
+	{
+		if (*a != *b)
+			return 0;
+	}
+	return 1;
+}
+
 EFI_STATUS efi_main(EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
 {
 	InitializeLib(imgHandle, sysTable);
@@ -196,8 +216,43 @@ EFI_STATUS efi_main(EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
 		return EFI_LOAD_ERROR;
 	Print(L"Loaded font, chsize: %d\r\n", font->psf1hdr->chsize);
 
-	void (*kstart)(Framebuffer *, PSF1Font *) = ((__attribute__((sysv_abi)) void (*)(Framebuffer *, PSF1Font *))hdr.e_entry);
-	kstart(&fb, font);
+	EFI_MEMORY_DESCRIPTOR *mmap = NULL;
+	UINTN mapSize, mapKey;
+	UINTN descSize;
+	UINT32 descVer;
+	{
+		sysTable->BootServices->GetMemoryMap(&mapSize, mmap, &mapKey, &descSize, &descVer);
+		sysTable->BootServices->AllocatePool(EfiLoaderData, mapSize, (void **)&mmap);
+		sysTable->BootServices->GetMemoryMap(&mapSize, mmap, &mapKey, &descSize, &descVer);
+	}
+
+	EFI_CONFIGURATION_TABLE *cfgTable = sysTable->ConfigurationTable;
+	void *rsdp = NULL;
+	EFI_GUID acpi2TableGuid = ACPI_20_TABLE_GUID;
+	for (UINTN i = 0; i < sysTable->NumberOfTableEntries; ++i)
+	{
+		if (CompareGuid(&cfgTable[i].VendorGuid, &acpi2TableGuid))
+		{
+			if (strcmp((CHAR8 *)"RSD PTR ", (CHAR8 *)cfgTable->VendorTable, 8))
+			{
+				rsdp = (void *)cfgTable->VendorTable;
+			}
+		}
+		++cfgTable;
+	}
+
+	BootInfo bi;
+	bi.fb = &fb;
+	bi.font = font;
+	bi.mmap = mmap;
+	bi.mmapSize = mapSize;
+	bi.mmapDescSize = descSize;
+	bi.rsdp = rsdp;
+
+	void (*kstart)(BootInfo *) = ((__attribute__((sysv_abi)) void (*)(BootInfo *))hdr.e_entry);
+	uefi_call_wrapper(ST->ConOut->ClearScreen, 1, ST->ConOut);
+	sysTable->BootServices->ExitBootServices(imgHandle, mapKey);
+	kstart(&bi);
 
 	return EFI_SUCCESS;
 }

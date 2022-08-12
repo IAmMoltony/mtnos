@@ -4,8 +4,11 @@ GNUEFI = ../gnu-efi
 OVMFDIR = ../OVMFbin
 LDS = linker.ld
 CC = gcc
+ASM = nasm
+LD = ld
 
-CFLAGS = -ffreestanding -fshort-wchar -Wall -Wextra -Iinc -c
+CFLAGS = -ffreestanding -fshort-wchar -Iinc -mno-red-zone -c
+ASMFLAGS = -iinc
 LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
 
 SRCDIR := src
@@ -17,13 +20,20 @@ rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(su
 
 CSRC = $(call rwildcard,$(SRCDIR),*.c)
 CPPSRC = $(call rwildcard,$(SRCDIR),*.cpp)
+ASMSRC = $(call rwildcard,$(SRCDIR),*.asm)
 COBJS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(CSRC))
 CPPOBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CPPSRC))
+ASMOBJS = $(patsubst $(SRCDIR)/%.asm, $(OBJDIR)/%_asm.o, $(ASMSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
 
-$(BUILDDIR)/kernel.elf: $(COBJS) $(CPPOBJS)
+$(BUILDDIR)/kernel.elf: $(COBJS) $(CPPOBJS) $(ASMOBJS)
 	@echo linking $(notdir $@)
 	@$(LD) $(LDFLAGS) -o $@ $^
+
+$(OBJDIR)/interrupts/interrupts.o: $(SRCDIR)/interrupts/interrupts.cpp
+	@echo $(notdir $^)
+	@mkdir -p $(@D)
+	@$(CC) -mno-red-zone -Iinc -mgeneral-regs-only -ffreestanding -c $^ -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@echo $(notdir $^)
@@ -35,8 +45,13 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(@D)
 	@$(CC) $(CFLAGS) $^ -o $@
 
+$(OBJDIR)/%_asm.o: $(SRCDIR)/%.asm
+	@echo $(notdir $^)
+	@mkdir -p $(@D)
+	@$(ASM) $(ASMFLAGS) $^ -f elf64 -o $@
+
 $(BUILDDIR)/$(OSNAME).img: $(BUILDDIR)/kernel.elf $(BOOTEFI) startup.nsh
-	@echo building $@...
+	@echo building $(notdir $@)...
 	@dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME).img bs=512 count=93750
 	@mformat -i $(BUILDDIR)/$(OSNAME).img -f 1440 ::
 	@mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI

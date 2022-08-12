@@ -3,6 +3,8 @@ ENTRY(kstart)
 
 SECTIONS
 {
+    _kernelstart = .;
+
     .text : ALIGN(0x1000)
     {
         *(.text)
@@ -23,4 +25,6 @@ SECTIONS
         *(COMMON)
         *(.bss)
     }
+
+    _kernelend = .;
 }
