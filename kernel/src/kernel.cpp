@@ -1,9 +1,12 @@
 #include <kutil.hpp>
 #include <input/mouse.hpp>
 #include <str.h>
+#include <panic.hpp>
 
 extern "C" void kstart(boot_info_t *bi)
 {
+    g_panic_fullscreen = false;
+
     kernel_info_t ki = kernel_init(bi);
     PageTableManager *ptm = ki.ptm;
     g_renderer->print("Kernel initialized\n");

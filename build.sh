@@ -17,3 +17,7 @@ cd ../kernel
 make image || quit
 cd ..
 printf "${GREEN}Build success${NOCOLOR}\n"
+
+if [ "$1"=="--andrun" ]; then
+    ./run.sh
+fi
