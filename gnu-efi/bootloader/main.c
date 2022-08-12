@@ -36,10 +36,7 @@ typedef struct boot_info
 	EFI_MEMORY_DESCRIPTOR *mmap;
 	UINTN mmapSize;
 	UINTN mmapDescSize;
-<<<<<<< HEAD
 	void *rsdp;
-=======
->>>>>>> 2b1eebe50b87486f84251295194968295669c374
 } BootInfo;
 
 EFI_FILE *load_file(EFI_FILE *dir, CHAR16 *path, EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
@@ -229,7 +226,6 @@ EFI_STATUS efi_main(EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
 		sysTable->BootServices->GetMemoryMap(&mapSize, mmap, &mapKey, &descSize, &descVer);
 	}
 
-<<<<<<< HEAD
 	EFI_CONFIGURATION_TABLE *cfgTable = sysTable->ConfigurationTable;
 	void *rsdp = NULL;
 	EFI_GUID acpi2TableGuid = ACPI_20_TABLE_GUID;
@@ -245,18 +241,13 @@ EFI_STATUS efi_main(EFI_HANDLE imgHandle, EFI_SYSTEM_TABLE *sysTable)
 		++cfgTable;
 	}
 
-=======
->>>>>>> 2b1eebe50b87486f84251295194968295669c374
 	BootInfo bi;
 	bi.fb = &fb;
 	bi.font = font;
 	bi.mmap = mmap;
 	bi.mmapSize = mapSize;
 	bi.mmapDescSize = descSize;
-<<<<<<< HEAD
 	bi.rsdp = rsdp;
-=======
->>>>>>> 2b1eebe50b87486f84251295194968295669c374
 
 	void (*kstart)(BootInfo *) = ((__attribute__((sysv_abi)) void (*)(BootInfo *))hdr.e_entry);
 	uefi_call_wrapper(ST->ConOut->ClearScreen, 1, ST->ConOut);

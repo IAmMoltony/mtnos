@@ -6,7 +6,6 @@
 uint8_t mouse_pointer[] =
 {
     0b11000000, 0b00000000,
-<<<<<<< HEAD
     0b11100000, 0b00000000,
     0b11110000, 0b00000000,
     0b11111000, 0b00000000,
@@ -19,20 +18,6 @@ uint8_t mouse_pointer[] =
     0b11001111, 0b00000000,
     0b00000111, 0b10000000,
     0b00000111, 0b10000000,
-=======
-    0b10100000, 0b00000000,
-    0b10010000, 0b00000000,
-    0b10001000, 0b00000000,
-    0b10000100, 0b00000000,
-    0b10000010, 0b00000000,
-    0b10000001, 0b00000000,
-    0b10000011, 0b10000000,
-    0b10010010, 0b00000000,
-    0b10101001, 0b00000000,
-    0b11001001, 0b00000000,
-    0b00000100, 0b10000000,
-    0b00000100, 0b10000000,
->>>>>>> 2b1eebe50b87486f84251295194968295669c374
     0b00000011, 0b00000000,
     0b00000000, 0b00000000,
     0b00000000, 0b00000000,
@@ -152,7 +137,6 @@ void process_mouse_packet(void)
         mouse_position.y = g_renderer->get_height() - 1;
 
     g_renderer->clear_mouse_cursor(mouse_position_old);
-<<<<<<< HEAD
     g_renderer->draw_mouse_cursor(mouse_position, 0x0000bb00);
 
     if (mouse_packet[0] & PS2_LMB)
@@ -161,16 +145,6 @@ void process_mouse_packet(void)
         g_renderer->putch(0x0000ff00, '#', mouse_position.x, mouse_position.y);
     if (mouse_packet[0] & PS2_RMB)
         g_renderer->putch(0x000000ff, '#', mouse_position.x, mouse_position.y);
-=======
-    g_renderer->draw_mouse_cursor(mouse_position, 0xffffffff);
-
-    if (mouse_packet[0] & PS2_LMB)
-        g_renderer->putch(0x00ff00ff, '#', mouse_position.x, mouse_position.y);
-    if (mouse_packet[0] & PS2_MMB)
-        g_renderer->putch(0x00ff0000, '#', mouse_position.x, mouse_position.y);
-    if (mouse_packet[0] & PS2_RMB)
-        g_renderer->putch(0xffffff00, '#', mouse_position.x, mouse_position.y);
->>>>>>> 2b1eebe50b87486f84251295194968295669c374
 
     mouse_packet_ready = false;
     mouse_position_old = mouse_position;

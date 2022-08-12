@@ -9,10 +9,7 @@
 #include <paging/pageframealloc.hpp>
 #include <paging/pagemapindexer.hpp>
 #include <paging/pagetablemgr.hpp>
-<<<<<<< HEAD
 #include <acpi.h>
-=======
->>>>>>> 2b1eebe50b87486f84251295194968295669c374
 
 typedef struct boot_info
 {
@@ -21,10 +18,7 @@ typedef struct boot_info
 	EFI_MEMORY_DESCRIPTOR *mmap;
 	uint64_t mmapSize;
 	uint64_t mmapDescSize;
-<<<<<<< HEAD
 	rsdp2_t *rsdp;
-=======
->>>>>>> 2b1eebe50b87486f84251295194968295669c374
 } boot_info_t;
 
 extern uint64_t _kernelstart;
