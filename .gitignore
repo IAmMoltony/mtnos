@@ -1,5 +1,5 @@
 mtnos.cppcheck
-mtnos-cppcheck-build-dir
+mtnos-cppcheck-build-dir/
 kernel/bin/*.img
 kernel/bin/*.elf
 kernel/lib/*/*.o
