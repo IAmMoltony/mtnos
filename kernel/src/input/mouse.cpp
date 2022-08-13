@@ -77,7 +77,7 @@ void handle_mouse(uint8_t data)
     switch (mouse_cycle)
     {
     case 0:
-        if (data & 0b00001000 == 0)
+        if ((data & 0b00001000) == 0)
             break;
         mouse_packet[0] = data;
         ++mouse_cycle;
