@@ -64,6 +64,16 @@ point_t mouse_position;
 point_t mouse_position_old;
 void handle_mouse(uint8_t data)
 {
+    process_mouse_packet();
+
+    // first packet out of sync, skip it
+    static bool skip = true;
+    if (skip)
+    {
+        skip = false;
+        return;
+    }
+
     switch (mouse_cycle)
     {
     case 0:

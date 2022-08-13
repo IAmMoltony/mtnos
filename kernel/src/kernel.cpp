@@ -19,10 +19,5 @@ extern "C" void kstart(boot_info_t *bi)
     g_renderer->print("\n\n");
 
     while (true)
-    {
-        process_mouse_packet();
-    }
-
-    while (true)
         ;
 }

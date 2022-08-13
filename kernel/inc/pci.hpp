@@ -26,5 +26,7 @@ extern "C" const char *pci_dev_classes[];
 extern "C" const char *get_vendor_name(uint16_t vendor_id);
 extern "C" const char *get_dev_name(uint16_t vendor_id, uint16_t dev_id);
 extern "C" const char *get_subclass_name(uint8_t class_code, uint8_t subclass_code);
+extern "C" const char *get_prog_interface_name(uint8_t class_code, uint8_t subclass_code,
+                                               uint8_t prog_interface);
 
 #endif

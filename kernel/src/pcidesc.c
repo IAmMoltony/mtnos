@@ -106,3 +106,27 @@ const char *get_subclass_name(uint8_t class_code, uint8_t subclass_code)
     longtostr(subclass_code, hex_out, 16);
     return hex_out;
 }
+
+const char *get_prog_interface_name(uint8_t class_code, uint8_t subclass_code, uint8_t prog_interface)
+{
+    switch (class_code)
+    {
+    case 0x01: // mass storage con
+        switch (subclass_code)
+        {
+        case 0x06: // serial ata
+            switch (prog_interface)
+            {
+            case 0x00:
+                return "Vendor specific interface";
+            case 0x01:
+                return "AHCI 1.0";
+            case 0x02:
+                return "Serial storage bus";
+            }
+        }
+    }
+
+    longtostr(prog_interface, hex_out, 16);
+    return hex_out;
+}

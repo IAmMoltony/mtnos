@@ -16,11 +16,12 @@ static void func_enumerate(uint64_t dev_addr, uint64_t func)
         return; // not valid
     }
 
-    g_renderer->printf("%s %s %s %s %x\n", get_vendor_name(pci_dev_hdr->vendor_id),
+    g_renderer->printf("%s | %s | %s | %s | %s\n", get_vendor_name(pci_dev_hdr->vendor_id),
                        get_dev_name(pci_dev_hdr->vendor_id, pci_dev_hdr->dev_id),
                        pci_dev_classes[pci_dev_hdr->class_],
                        get_subclass_name(pci_dev_hdr->class_, pci_dev_hdr->subclass),
-                       pci_dev_classes[pci_dev_hdr->prog_interface]);
+                       get_prog_interface_name(pci_dev_hdr->class_, pci_dev_hdr->subclass,
+                       pci_dev_hdr->prog_interface));
 }
 
 static void device_enumerate(uint64_t bus_addr, uint64_t device)

@@ -125,14 +125,16 @@ void PageFrameAlloc::read_efi_mmap(EFI_MEMORY_DESCRIPTOR *mmap, size_t mmap_size
     uint64_t bmpsize = mem_size / 4096 / 8 + 1;
 
     init_bmp(bmpsize, largest_free);
-    lock_pages(pagebmp.buf, pagebmp.size / 4096 + 1);
+    reserve_pages(0, mem_size / 4096 + 1);
 
     for (uint64_t i = 0; i < mmap_entries; ++i)
     {
         EFI_MEMORY_DESCRIPTOR *desc = (EFI_MEMORY_DESCRIPTOR *)((uint64_t)mmap + (i * mmap_desc_size));
-        if (desc->type != 7) // not conventional memory
-            reserve_pages(desc->phys_addr, desc->num_pages);
+        if (desc->type == 7) // yes conventional memory
+            unreserve_pages(desc->phys_addr, desc->num_pages);
     }
+    reserve_pages(0, 0x100);
+    lock_pages(pagebmp.buf, pagebmp.size / 4096 + 1);
 }
 
 void PageFrameAlloc::init_bmp(size_t bmpsize, void *buf_addr)
